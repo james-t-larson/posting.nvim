@@ -1,8 +1,6 @@
 ## To Do
 
 - need to support multiple buffers for multiple envs/collections
-- create lisence
-- complete readme
 - check if collection/env files exist?
     * [ ] throw error if files are not present
     * [ ] taskell.nvim has examples
@@ -27,3 +25,5 @@
     * [x] get content
     * [x] return quit command
     * [x] set quit command to <C-C> if no command is set, or no file is found 
+- create lisence
+- complete readme
