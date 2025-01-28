@@ -1,12 +1,11 @@
 ## To Do
 
-- check if collection/env files exist?
-    * [ ] throw error if files are not present
-    * [ ] taskell.nvim has examples
 
 ## Doing
 
-- need to support multiple buffers for multiple envs/collections
+- check if collection/env files exist?
+    * [ ] throw error if files are not present
+    * [ ] taskell.nvim has examples
 
 ## Done
 
@@ -26,3 +25,6 @@
     * [x] move opts out of open
     * [x] force over ride opts with user ops
     * [x] support keybinds, should take an array of key binds and iterate over that
+- need to support multiple buffers for multiple envs/collections
+    * [x] Use the args as table keys
+    * [x] if the table key doesn't exit, fall back to a defalt win, buf, and job id

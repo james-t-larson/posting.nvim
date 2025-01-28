@@ -1,9 +1,5 @@
 local M = {}
 
-local buf = 0
-local window = nil
-local job_id = nil
-
 ---@class Keybind
 ---@field bind string
 ---@field command string
@@ -65,6 +61,31 @@ local function get_quit_binding(path)
 	return content:match("quit:%s*(%S+)") or default_quit_binding
 end
 
+local terminal_data = {}
+
+---@param key string
+---@return table terminal_data
+local function get_terminal_data(key)
+	if not terminal_data[key] then
+		terminal_data[key] = {
+			buf = 0,
+			window = nil,
+			job_id = nil,
+		}
+	end
+
+	return {
+		terminal_data[key].buf,
+		terminal_data[key].window,
+		terminal_data[key].job_id,
+	}
+end
+
+local function set_terminal_data(key, data)
+	terminal_data[key] = data
+end
+
+local current_window = nil
 function M.open(args)
 	local installation_valid = validate_installation()
 	if not installation_valid then
@@ -72,6 +93,7 @@ function M.open(args)
 	end
 
 	local launch_command = "posting " .. (args.args or "")
+	local buf, window, job_id = unpack(get_terminal_data(launch_command))
 	if buf == 0 or not vim.api.nvim_buf_is_valid(buf) then
 		local config_path = locate_config()
 		local quit_binding = get_quit_binding(config_path)
@@ -100,18 +122,25 @@ function M.open(args)
 			style = "minimal",
 			border = opts.ui.border,
 		})
+		current_window = window
 	end
 
 	if not job_id then
 		job_id = vim.fn.termopen(launch_command)
 	end
 
+	set_terminal_data(launch_command, {
+		buf = buf,
+		window = window,
+		job_id = job_id,
+	})
+
 	vim.cmd("startinsert")
 end
 
 function M.close()
-	if window and vim.api.nvim_win_is_valid(window) then
-		vim.api.nvim_win_close(window, true)
+	if current_window and vim.api.nvim_win_is_valid(current_window) then
+		vim.api.nvim_win_close(current_window, true)
 	end
 end
 
