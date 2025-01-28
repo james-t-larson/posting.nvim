@@ -5,18 +5,21 @@
 ## Roadmap
 
 - Add projects and absolute paths to opts
-    > This is to allow uses to be in multiple projects, but still open posting with the correct collection. This should mitigate the problem of creating a bunch of keymaps to cover multiple projects
+    > This is to allow uses to be in multiple projects, but still open posting with the correct collection. This should mitigate the problem of creating a bunch of keymaps to cover multiple projects. Users should be able to associate the front end with the backend and launch the same collection from eother project
 
 ## To Do
 
 - set_terminal_data is called every time
     * [ ] It should only be called when it needs to be
 - break open into smaller functions
+- Add posting.nvim to awesome-neovim
+    > https://github.com/rockerBOO/awesome-neovim
 
 ## Doing
 
-- Add posting.nvim to awesome-neovim
-    > https://github.com/rockerBOO/awesome-neovim
+- Add a demo gif
+    * [ ] install a plugin to show what keys I am press
+    * [ ] create fake collections for a public api
 
 ## Done
 

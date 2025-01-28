@@ -5,6 +5,9 @@
 This plugin allows you to launch and manage Posting directly within Neovim, providing an efficient way to handle HTTP requests and responses without leaving your editor. 
 </p>
 
+<p align="center">
+  <a href="taskell.md">Roadmap & Workflow</a>
+</p>
 
 ---
 
