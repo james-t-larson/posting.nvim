@@ -1,5 +1,8 @@
 ## To Do
 
+- set_terminal_data is called every time
+    * [ ] It should only be called when it needs to be
+- break open into smaller functions
 
 ## Doing
 

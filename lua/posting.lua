@@ -30,6 +30,13 @@ local opts = {
 	},
 }
 
+---@class TerminalData
+---@field buf number
+---@field window number
+---@field job_id number
+local terminal_data = {}
+local current_window = 0
+
 ---@return boolean installation_valid
 local function validate_installation()
 	if vim.fn.executable("posting") ~= 1 then
@@ -61,16 +68,14 @@ local function get_quit_binding(path)
 	return content:match("quit:%s*(%S+)") or default_quit_binding
 end
 
-local terminal_data = {}
-
 ---@param key string
 ---@return table terminal_data
 local function get_terminal_data(key)
 	if not terminal_data[key] then
 		terminal_data[key] = {
 			buf = 0,
-			window = nil,
-			job_id = nil,
+			window = 0,
+			job_id = 0,
 		}
 	end
 
@@ -85,7 +90,6 @@ local function set_terminal_data(key, data)
 	terminal_data[key] = data
 end
 
-local current_window = nil
 function M.open(args)
 	local installation_valid = validate_installation()
 	if not installation_valid then
@@ -108,7 +112,7 @@ function M.open(args)
 		)
 	end
 
-	if window == nil or not vim.api.nvim_win_is_valid(window) then
+	if window == 0 or not vim.api.nvim_win_is_valid(window) then
 		local height = math.ceil(vim.o.lines * opts.ui.height)
 		local width = math.ceil(vim.o.columns * opts.ui.width)
 		local row = math.ceil((vim.o.lines - height) * opts.ui.y - 1)
@@ -125,7 +129,7 @@ function M.open(args)
 		current_window = window
 	end
 
-	if not job_id then
+	if job_id == 0 then
 		job_id = vim.fn.termopen(launch_command)
 	end
 
