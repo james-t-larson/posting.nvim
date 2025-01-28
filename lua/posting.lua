@@ -4,7 +4,22 @@ local buf = 0
 local window = nil
 local job_id = nil
 
+---@return boolean installation_valid
+local function validate_installation()
+	if vim.fn.executable("posting") ~= 1 then
+		vim.api.nvim_err_write("Posting not installed, visit https://posting.sh/guide for guidance\n")
+		vim.api.nvim_err_write("")
+		return false
+	else
+		return true
+	end
+end
+
 function M.open(args)
+	local installation_valid = validate_installation()
+	if not installation_valid then
+		return
+	end
 	local width = math.floor(vim.o.columns * 0.95)
 	local height = math.floor(vim.o.lines * 0.87)
 	local row = math.floor((vim.o.lines - height) / 2) - 1
@@ -45,14 +60,6 @@ end
 function M.close()
 	if window and vim.api.nvim_win_is_valid(window) then
 		vim.api.nvim_win_close(window, true)
-	end
-end
-
-function M.toggle(args)
-	if window and vim.api.nvim_win_is_valid(window) then
-		M.close()
-	else
-		M.open(args)
 	end
 end
 
