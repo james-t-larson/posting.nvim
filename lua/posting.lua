@@ -15,11 +15,32 @@ local function validate_installation()
 	end
 end
 
+---@return string config_path
+local function locate_config()
+	local message = vim.fn.system("posting locate config")
+	return message:match("(/[%w%p]+)")
+end
+
+---@param path string
+---@return string quit_command
+local function get_quit_command(path)
+	local default_quit_command = "<C-C>"
+	local file = io.open(path, "r")
+	if not file then
+		return default_quit_command
+	end
+
+	local content = file:read("*a")
+	file:close()
+	return content:match("quit:%s*(%S+)") or default_quit_command
+end
+
 function M.open(args)
 	local installation_valid = validate_installation()
 	if not installation_valid then
 		return
 	end
+
 	local width = math.floor(vim.o.columns * 0.95)
 	local height = math.floor(vim.o.lines * 0.87)
 	local row = math.floor((vim.o.lines - height) / 2) - 1
@@ -35,15 +56,11 @@ function M.open(args)
 	}
 
 	if buf == 0 or not vim.api.nvim_buf_is_valid(buf) then
+		local config_path = locate_config()
+		local quit_command = get_quit_command(config_path)
 		buf = vim.api.nvim_create_buf(false, true)
 		vim.api.nvim_buf_set_name(buf, "posting")
-		vim.api.nvim_buf_set_keymap(
-			buf,
-			"t",
-			"x", -- should get this value from the posting config
-			[[<C-\><C-n>:Close<CR>]],
-			{ noremap = true, silent = true }
-		)
+		vim.api.nvim_buf_set_keymap(buf, "t", quit_command, [[<C-\><C-n>:Close<CR>]], { noremap = true, silent = true })
 	end
 
 	if window == nil or not vim.api.nvim_win_is_valid(window) then
