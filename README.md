@@ -12,10 +12,29 @@ This plugin allows you to launch and manage Posting directly within Neovim, prov
 
 - Open Posting directly in a floating window inside Neovim.
 - Configure custom keybinds for launching Posting with specific arguments.
-- Automatically validates the Posting installation and locates the configuration file.
-- Dynamically resizes the Posting window based on your editor dimensions.
-- Simple commands to open and close the Posting interface.
 - Customizable UI settings such as border style, window size, and positioning.
+
+### **Launch Multiple Collections or Environments**
+
+One of the key benefits of `posting.nvim` is the ability to seamlessly switch between multiple Posting collections or environments using custom keybinds. For example, you can set up separate commands for a staging environment and a testing environment and switch between them without leaving Neovim.
+
+#### **Example Use Case**
+Imagine you have two collections:
+- **`posting-collection` with `staging.env`**
+- **`posting-collection` with `testing.env`**
+
+You can configure `posting.nvim` to set up keybinds like this:
+- `<leader>pd`: Launch Posting with the staging environment.
+- `<leader>pt`: Launch Posting with the testing environment.
+
+This setup allows you to toggle between environments quickly and efficiently.
+
+#### **Switching Between Environments**
+Once the keybinds are set up, you can seamlessly switch between environments:
+- Press `<leader>pd` to open the staging environment.
+- Press `<leader>pt` to open the testing environment.
+
+The plugin dynamically handles the floating window for each environment and ensures that switching between them is fast and intuitive. Each environment launches its own terminal buffer, so you can manage separate sessions independently.
 
 ---
 
@@ -167,3 +186,4 @@ This plugin is licensed under the [MIT License](LICENSE).
 
 - [Posting](https://posting.sh) for the powerful HTTP client.
 - [Neovim](https://neovim.io) for the extensible text editor.
+
