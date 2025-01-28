@@ -1,6 +1,5 @@
 ## To Do
 
-- need to support multiple buffers for multiple envs/collections
 - check if collection/env files exist?
     * [ ] throw error if files are not present
     * [ ] taskell.nvim has examples
@@ -9,10 +8,7 @@
 
 ## Doing
 
-- enable opts for end users
-    * [ ] create setup function
-    * [ ] move opts out of open
-    * [ ] force over ride opts with user ops
+- need to support multiple buffers for multiple envs/collections
 
 ## Done
 
@@ -27,3 +23,8 @@
     * [x] set quit command to <C-C> if no command is set, or no file is found 
 - create lisence
 - complete readme
+- enable opts for end users
+    * [x] create setup function
+    * [x] move opts out of open
+    * [x] force over ride opts with user ops
+    * [x] support keybinds, should take an array of key binds and iterate over that

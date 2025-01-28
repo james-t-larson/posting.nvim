@@ -4,6 +4,36 @@ local buf = 0
 local window = nil
 local job_id = nil
 
+---@class Keybind
+---@field bind string
+---@field command string
+---@field desc string
+
+---@alias Keybinds Keybind[]
+
+---@class UI
+---@field border string
+---@field height number
+---@field width number
+---@field x number
+---@field y number
+
+---@class Options
+---@field keybinds Keybinds
+---@field ui UI
+local opts = {
+	keybinds = {},
+	ui = {
+		relative = "editor",
+		width = 0.95,
+		height = 0.87,
+		x = 0.5,
+		y = 0.5,
+		style = "minimal",
+		border = "rounded",
+	},
+}
+
 ---@return boolean installation_valid
 local function validate_installation()
 	if vim.fn.executable("posting") ~= 1 then
@@ -41,34 +71,39 @@ function M.open(args)
 		return
 	end
 
-	local width = math.floor(vim.o.columns * 0.95)
-	local height = math.floor(vim.o.lines * 0.87)
-	local row = math.floor((vim.o.lines - height) / 2) - 1
-	local col = math.floor((vim.o.columns - width) / 2)
-	local opts = {
-		relative = "editor",
-		width = width,
-		height = height,
-		row = row,
-		col = col,
-		style = "minimal",
-		border = "rounded",
-	}
-
+	local launch_command = "posting " .. (args.args or "")
 	if buf == 0 or not vim.api.nvim_buf_is_valid(buf) then
 		local config_path = locate_config()
 		local quit_command = get_quit_command(config_path)
 		buf = vim.api.nvim_create_buf(false, true)
-		vim.api.nvim_buf_set_name(buf, "posting")
-		vim.api.nvim_buf_set_keymap(buf, "t", quit_command, [[<C-\><C-n>:Close<CR>]], { noremap = true, silent = true })
+		vim.api.nvim_buf_set_name(buf, launch_command)
+		vim.api.nvim_buf_set_keymap(
+			buf,
+			"t",
+			quit_command,
+			[[<C-\><C-n>:ClosePosting<CR>]],
+			{ noremap = true, silent = true }
+		)
 	end
 
 	if window == nil or not vim.api.nvim_win_is_valid(window) then
-		window = vim.api.nvim_open_win(buf, true, opts)
+		local height = math.ceil(vim.o.lines * opts.ui.height)
+		local width = math.ceil(vim.o.columns * opts.ui.width)
+		local row = math.ceil((vim.o.lines - height) * opts.ui.y - 1)
+		local col = math.ceil((vim.o.columns - width) * opts.ui.x)
+		window = vim.api.nvim_open_win(buf, true, {
+			relative = "editor",
+			width = width,
+			height = height,
+			row = row,
+			col = col,
+			style = "minimal",
+			border = "rounded",
+		})
 	end
 
 	if not job_id then
-		job_id = vim.fn.termopen("posting " .. (args.args or ""))
+		job_id = vim.fn.termopen(launch_command)
 	end
 
 	vim.cmd("startinsert")
@@ -80,26 +115,39 @@ function M.close()
 	end
 end
 
-vim.api.nvim_create_user_command("OpenPosting", function(args)
-	M.open(args)
-end, {
-	nargs = "*",
-	desc = "Open posting client with optional arguments",
-})
+function M.setup(user_opts)
+	if user_opts then
+		opts = vim.tbl_deep_extend("force", opts, user_opts)
+	end
 
-vim.api.nvim_create_user_command("ClosePosting", function()
-	M.close()
-end, {
-	desc = "Close posting client",
-})
+	vim.api.nvim_create_user_command("OpenPosting", function(args)
+		M.open(args)
+	end, {
+		nargs = "*",
+		desc = "Open posting client with optional arguments",
+	})
 
-vim.api.nvim_set_keymap("n", "<leader>p", ":OpenPosting<CR>", { noremap = true, silent = true, desc = "Open Posting" })
+	vim.api.nvim_create_user_command("ClosePosting", function()
+		M.close()
+	end, {
+		desc = "Close posting client",
+	})
 
--- vim.api.nvim_set_keymap(
--- 	"n",
--- 	"<leader>pd",
--- 	":TogglePosting --collection posting-collection --env posting-envs/staging.env<CR>",
--- 	{ noremap = true, silent = true, desc = "Toggle Posting" }
--- )
---
+	vim.api.nvim_set_keymap(
+		"n",
+		"<leader>p",
+		":OpenPosting<CR>",
+		{ noremap = true, silent = true, desc = "Open Posting" }
+	)
+
+	for _, keybind in ipairs(user_opts.keybinds) do
+		vim.api.nvim_set_keymap(
+			"n",
+			keybind.binding,
+			keybind.command,
+			{ noremap = true, silent = true, desc = keybind.desc }
+		)
+	end
+end
+
 return M
