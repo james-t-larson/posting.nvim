@@ -52,17 +52,17 @@ local function locate_config()
 end
 
 ---@param path string
----@return string quit_command
-local function get_quit_command(path)
-	local default_quit_command = "<C-C>"
+---@return string quit_binding
+local function get_quit_binding(path)
+	local default_quit_binding = "<C-C>"
 	local file = io.open(path, "r")
 	if not file then
-		return default_quit_command
+		return default_quit_binding
 	end
 
 	local content = file:read("*a")
 	file:close()
-	return content:match("quit:%s*(%S+)") or default_quit_command
+	return content:match("quit:%s*(%S+)") or default_quit_binding
 end
 
 function M.open(args)
@@ -74,13 +74,13 @@ function M.open(args)
 	local launch_command = "posting " .. (args.args or "")
 	if buf == 0 or not vim.api.nvim_buf_is_valid(buf) then
 		local config_path = locate_config()
-		local quit_command = get_quit_command(config_path)
+		local quit_binding = get_quit_binding(config_path)
 		buf = vim.api.nvim_create_buf(false, true)
 		vim.api.nvim_buf_set_name(buf, launch_command)
 		vim.api.nvim_buf_set_keymap(
 			buf,
 			"t",
-			quit_command,
+			quit_binding,
 			[[<C-\><C-n>:ClosePosting<CR>]],
 			{ noremap = true, silent = true }
 		)
@@ -98,7 +98,7 @@ function M.open(args)
 			row = row,
 			col = col,
 			style = "minimal",
-			border = "rounded",
+			border = opts.ui.border,
 		})
 	end
 

@@ -3,8 +3,6 @@
 - check if collection/env files exist?
     * [ ] throw error if files are not present
     * [ ] taskell.nvim has examples
-- set collection and env used in header
-    * [ ] Only support one env at a time for now
 
 ## Doing
 
