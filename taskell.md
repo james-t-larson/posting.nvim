@@ -1,3 +1,12 @@
+## Considering
+
+- Create the collection/env if it doesn't exist?
+
+## Roadmap
+
+- Add projects and absolute paths to opts
+    > This is to allow uses to be in multiple projects, but still open posting with the correct collection. This should mitigate the problem of creating a bunch of keymaps to cover multiple projects
+
 ## To Do
 
 - set_terminal_data is called every time
@@ -6,12 +15,14 @@
 
 ## Doing
 
-- check if collection/env files exist?
-    * [ ] throw error if files are not present
-    * [ ] taskell.nvim has examples
+- Add posting.nvim to awesome-neovim
+    > https://github.com/rockerBOO/awesome-neovim
 
 ## Done
 
+- check if collection/env files exist
+    * [x] throw error if files are not present
+    * [x] do not launch window if args cannot be validated 
 - toggle posting might not be needed
 - throw error/notification if posting is not installed
     * [x] failed installation validation should return early

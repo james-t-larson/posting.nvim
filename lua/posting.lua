@@ -48,6 +48,31 @@ local function validate_installation()
 	end
 end
 
+local function validate_args(paths)
+	for _, path in ipairs(paths) do
+		arg = path
+		if not path or path == "" then
+			return true
+		end
+
+		path = vim.fn.expand(path)
+		path = vim.fn.fnamemodify(path, ":p")
+
+		local ok, _, code = os.rename(path, path)
+		if not ok then
+			if code == 13 then
+				vim.api.nvim_err_writeln("File or directory is not accessible: " .. arg)
+				return false
+			end
+
+			vim.api.nvim_err_writeln("File or directory does not exist, or you are in the wrong directory: " .. arg)
+			return false
+		end
+	end
+
+	return true
+end
+
 ---@return string config_path
 local function locate_config()
 	local message = vim.fn.system("posting locate config")
@@ -90,9 +115,22 @@ local function set_terminal_data(key, data)
 	terminal_data[key] = data
 end
 
+---@param args string
+---@return table arg_paths
+local function parse_args(args)
+	local arg_paths = {}
+	for _, arg in string.gmatch(args, "(%-%-%S+)%s+(%S+)") do
+		table.insert(arg_paths, arg)
+	end
+
+	return arg_paths
+end
+
 function M.open(args)
+	local arg_paths = parse_args(args.args)
+	local args_valid = validate_args(arg_paths)
 	local installation_valid = validate_installation()
-	if not installation_valid then
+	if not installation_valid or not args_valid then
 		return
 	end
 
