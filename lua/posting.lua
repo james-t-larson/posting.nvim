@@ -32,25 +32,32 @@ local opts = {
 
 ---@class TerminalData
 ---@field buf number
----@field window number
 ---@field job_id number
+
+---@type table<string, TerminalData>
 local terminal_data = {}
-local current_window = 0
+local window = 0
+
+--@param message string
+local function show_error(message)
+	vim.api.nvim_err_writeln(message)
+end
 
 ---@return boolean installation_valid
 local function validate_installation()
 	if vim.fn.executable("posting") ~= 1 then
-		vim.api.nvim_err_write("Posting not installed, visit https://posting.sh/guide for guidance\n")
-		vim.api.nvim_err_write("")
+		show_error("Posting not installed, visit https://posting.sh/guide for guidance\n")
 		return false
 	else
 		return true
 	end
 end
 
+---@param paths table
+---@return boolean args_valid
 local function validate_args(paths)
 	for _, path in ipairs(paths) do
-		arg = path
+		local arg = path
 		if not path or path == "" then
 			return true
 		end
@@ -61,11 +68,11 @@ local function validate_args(paths)
 		local ok, _, code = os.rename(path, path)
 		if not ok then
 			if code == 13 then
-				vim.api.nvim_err_writeln("File or directory is not accessible: " .. arg)
+				show_error("File or directory is not accessible: " .. arg)
 				return false
 			end
 
-			vim.api.nvim_err_writeln("File or directory does not exist, or you are in the wrong directory: " .. arg)
+			show_error("File or directory does not exist, or you are in the wrong directory: " .. arg)
 			return false
 		end
 	end
@@ -94,23 +101,23 @@ local function get_quit_binding(path)
 end
 
 ---@param key string
----@return table terminal_data
+---@return number[] terminal_data
 local function get_terminal_data(key)
 	if not terminal_data[key] then
 		terminal_data[key] = {
 			buf = 0,
-			window = 0,
 			job_id = 0,
 		}
 	end
 
 	return {
 		terminal_data[key].buf,
-		terminal_data[key].window,
 		terminal_data[key].job_id,
 	}
 end
 
+---@param key string
+---@param data TerminalData
 local function set_terminal_data(key, data)
 	terminal_data[key] = data
 end
@@ -135,7 +142,7 @@ function M.open(args)
 	end
 
 	local launch_command = "posting " .. (args.args or "")
-	local buf, window, job_id = unpack(get_terminal_data(launch_command))
+	local buf, job_id = unpack(get_terminal_data(launch_command))
 	if buf == 0 or not vim.api.nvim_buf_is_valid(buf) then
 		local config_path = locate_config()
 		local quit_binding = get_quit_binding(config_path)
@@ -155,6 +162,7 @@ function M.open(args)
 		local width = math.ceil(vim.o.columns * opts.ui.width)
 		local row = math.ceil((vim.o.lines - height) * opts.ui.y - 1)
 		local col = math.ceil((vim.o.columns - width) * opts.ui.x)
+		-- vim.api.nvim_buf_set_option(buf, "modifiable", true)
 		window = vim.api.nvim_open_win(buf, true, {
 			relative = "editor",
 			width = width,
@@ -164,7 +172,7 @@ function M.open(args)
 			style = "minimal",
 			border = opts.ui.border,
 		})
-		current_window = window
+		window = window
 	end
 
 	if job_id == 0 then
@@ -173,7 +181,6 @@ function M.open(args)
 
 	set_terminal_data(launch_command, {
 		buf = buf,
-		window = window,
 		job_id = job_id,
 	})
 
@@ -181,8 +188,8 @@ function M.open(args)
 end
 
 function M.close()
-	if current_window and vim.api.nvim_win_is_valid(current_window) then
-		vim.api.nvim_win_close(current_window, true)
+	if window and vim.api.nvim_win_is_valid(window) then
+		vim.api.nvim_win_close(window, true)
 	end
 end
 
