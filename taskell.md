@@ -9,6 +9,7 @@
 
 ## To Do
 
+- When the project collapses it should close window
 - set_terminal_data is called every time
     * [ ] It should only be called when it needs to be
 - break open into smaller functions
